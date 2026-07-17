@@ -1,5 +1,11 @@
 """Token bucket rate limiter."""
+import asyncio
+import math
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
+
+from app.core.config import RateLimitConfig
 
 
 @dataclass
@@ -26,12 +32,6 @@ class Bucket:
 
 
 # --- per-route registry -----------------------------------------------------
-import asyncio  # noqa: E402
-import math  # noqa: E402
-import time  # noqa: E402
-from collections.abc import Callable  # noqa: E402
-
-from app.core.config import RateLimitConfig  # noqa: E402
 
 
 @dataclass(frozen=True)
