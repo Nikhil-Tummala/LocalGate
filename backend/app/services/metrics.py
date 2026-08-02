@@ -28,24 +28,22 @@ class Metrics:
     # second -> [cache hits, upstream fetches]; ponytail: single event loop, so no lock needed
     buckets: dict = field(default_factory=dict)
 
-    def record(self, latency_ms: float, *, cache: str | None = None, limited: bool = False) -> None:
-        """cache: 'HIT', 'MISS' or None (not cacheable / rejected before cache)."""
+    def record(self, latency_ms: float, *, cache: str | None = None, outcome: str = "upstream") -> None:
+        """cache: 'HIT', 'MISS' or None. outcome: 'upstream', 'limited' (429) or 'synthetic' (chaos)."""
         self.total += 1
         self.latencies.append(latency_ms)
         sec = int(self.clock())
-        slot = self.buckets.setdefault(sec, [0, 0])
-        if limited:
-            self.rate_limited += 1
-            return
-        if cache == "HIT":
-            self.hits += 1
-            slot[0] += 1
-        else:
-            if cache == "MISS":
-                self.misses += 1
-            slot[1] += 1
         for old in [s for s in self.buckets if s < sec - WINDOW_SECONDS]:
             del self.buckets[old]
+        slot = self.buckets.setdefault(sec, [0, 0])
+        if outcome == "limited":
+            self.rate_limited += 1
+        elif cache == "HIT":
+            self.hits += 1
+            slot[0] += 1
+        elif outcome == "upstream":
+            self.misses += cache == "MISS"
+            slot[1] += 1
 
     def snapshot(self, tokens: float, capacity: int) -> dict:
         now = int(self.clock())
