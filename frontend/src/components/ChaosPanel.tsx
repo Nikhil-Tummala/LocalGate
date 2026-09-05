@@ -22,6 +22,7 @@ export default function ChaosPanel() {
   const [error, setError] = useState<string | null>(null)
   const [flushed, setFlushed] = useState<number | null>(null)
   const debounce = useRef<number | undefined>(undefined)
+  const pending = useRef<Partial<AppConfig['chaos']>>({})
 
   useEffect(() => {
     getConfig().then(setCfg).catch((e: Error) => setError(e.message))
@@ -33,11 +34,15 @@ export default function ChaosPanel() {
   const chaos = cfg.chaos
 
   // Update the UI immediately; send to the backend after the slider settles.
+  // Patches are merged while waiting, so changing two controls quickly loses neither.
   const setChaos = (patch: Partial<AppConfig['chaos']>) => {
     setCfg({ ...cfg, chaos: { ...chaos, ...patch } })
+    pending.current = { ...pending.current, ...patch }
     window.clearTimeout(debounce.current)
     debounce.current = window.setTimeout(() => {
-      patchConfig({ chaos: patch })
+      const body = pending.current
+      pending.current = {}
+      patchConfig({ chaos: body })
         .then((fresh) => {
           setCfg(fresh)
           setError(null)
