@@ -73,3 +73,27 @@ def test_concurrent_requests_never_overspend():
         assert sum(d.allowed for d in res) == 5
 
     asyncio.run(run())
+
+
+def test_idle_buckets_are_pruned_but_drained_ones_are_kept():
+    async def run():
+        clock = Clock()
+        rl = RateLimiter(RateLimitConfig(capacity=2, refill_rate=1.0), clock, max_routes=3)
+        await rl.acquire("drained")
+        await rl.acquire("drained")  # 0 tokens left
+        for i in range(2):
+            await rl.acquire(f"idle{i}")
+        clock.t = 0.5  # idle ones are still 0.5 short of full too, so nothing is prunable yet
+        await rl.acquire("new1")
+        assert len(rl._buckets) == 4
+        clock.t = 10  # everything has refilled
+        await rl.acquire("new2")
+        assert set(rl._buckets) == {"new2"}
+        # a drained bucket must survive pruning, or its owner would get a free refill
+        await rl.acquire("x")
+        await rl.acquire("x")
+        await rl.acquire("y")
+        await rl.acquire("z")
+        assert "x" in rl._buckets and not (await rl.acquire("x")).allowed
+
+    asyncio.run(run())

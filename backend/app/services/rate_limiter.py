@@ -51,8 +51,9 @@ class Decision:
 
 
 class RateLimiter:
-    def __init__(self, cfg: RateLimitConfig, clock: Callable[[], float] = time.monotonic):
+    def __init__(self, cfg: RateLimitConfig, clock: Callable[[], float] = time.monotonic, max_routes: int = 5000):
         self.cfg = cfg
+        self.max_routes = max_routes
         self._clock = clock
         self._buckets: dict[str, Bucket] = {}
         self._locks: dict[str, asyncio.Lock] = {}
@@ -68,6 +69,7 @@ class RateLimiter:
             now = self._clock()
             bucket = self._buckets.get(key)
             if bucket is None:
+                self._prune(now)
                 c = self.cfg
                 bucket = self._buckets[key] = Bucket(c.capacity, c.refill_rate, c.capacity, now)
             allowed = bucket.take(now)
@@ -79,6 +81,17 @@ class RateLimiter:
                 math.ceil(bucket.seconds_to_full()),
                 retry,
             )
+
+    def _prune(self, now: float) -> None:
+        """Drop idle buckets (refilled to full, so identical to a new one) once there are too many routes."""
+        if len(self._buckets) < self.max_routes:
+            return
+        for key, b in list(self._buckets.items()):
+            b.refill(now)
+            lock = self._locks.get(key)
+            if b.tokens >= b.capacity and not (lock and lock.locked()):
+                del self._buckets[key]
+                self._locks.pop(key, None)
 
     def min_tokens(self) -> float:
         """Tokens in the most drained bucket (capacity when idle). Feeds the dashboard."""

@@ -60,7 +60,7 @@ async def proxy(request: Request, path: str) -> Response:
     body = await request.body()  # ponytail: request bodies are buffered; upload streaming isn't needed locally
 
     # 2. rate limit
-    # ponytail: one bucket per path, never evicted; bound it if the proxy ever faces unbounded paths
+    # one bucket per path; idle ones are pruned by the limiter once there are too many routes
     decision = await state.limiter.acquire(raw_path)
     rl_headers = decision.headers()
     if not decision.allowed:
