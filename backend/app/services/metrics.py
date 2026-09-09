@@ -24,6 +24,7 @@ class Metrics:
     hits: int = 0
     misses: int = 0
     rate_limited: int = 0
+    chaos_injected: int = 0
     latencies: deque = field(default_factory=lambda: deque(maxlen=1000))
     # second -> [cache hits, upstream fetches]; ponytail: single event loop, so no lock needed
     buckets: dict = field(default_factory=dict)
@@ -38,6 +39,8 @@ class Metrics:
         slot = self.buckets.setdefault(sec, [0, 0])
         if outcome == "limited":
             self.rate_limited += 1
+        elif outcome == "synthetic":
+            self.chaos_injected += 1
         elif cache == "HIT":
             self.hits += 1
             slot[0] += 1
@@ -59,6 +62,7 @@ class Metrics:
             "cache_hits": self.hits,
             "cache_misses": self.misses,
             "rate_limited": self.rate_limited,
+            "chaos_injected": self.chaos_injected,
             "cache_hit_ratio": round(100 * self.hits / lookups, 1) if lookups else 0.0,
             "rps": last["hits"] + last["upstream"],
             "p50_ms": round(percentile(vals, 50), 2),

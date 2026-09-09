@@ -24,6 +24,7 @@ def test_counters_and_hit_ratio():
     s = m.snapshot(tokens=3.04, capacity=10)
     assert (s["total_requests"], s["cache_hits"], s["cache_misses"], s["rate_limited"]) == (4, 1, 1, 1)
     assert s["cache_hit_ratio"] == 50.0 and s["tokens"] == 3.0
+    assert s["chaos_injected"] == 1
     # limited and synthetic responses never count as upstream fetches
     assert s["series"][-1] == {"t": 1000, "hits": 1, "upstream": 1}
 

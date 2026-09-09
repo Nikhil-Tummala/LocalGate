@@ -73,6 +73,7 @@ def test_chaos_error_never_touches_upstream(client, upstream):
     r = client.get("/x")
     assert r.status_code == 503 and r.json()["error"] == "chaos_injected" and not upstream.calls
     assert "x-ratelimit-limit" in r.headers
+    assert app.state.proxy.metrics.chaos_injected == 1
 
 
 def test_rate_limit_runs_before_chaos_and_cache(client, upstream):
