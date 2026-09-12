@@ -9,6 +9,7 @@ export interface Telemetry {
   cache_hits: number
   cache_misses: number
   rate_limited: number
+  chaos_injected: number
   cache_hit_ratio: number
   rps: number
   p50_ms: number

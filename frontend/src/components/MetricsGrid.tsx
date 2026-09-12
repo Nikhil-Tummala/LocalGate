@@ -35,7 +35,7 @@ export default function MetricsGrid({ data }: { data: Telemetry | null }) {
         icon={<Gauge className={icon} />}
         label="Active bucket tokens"
         value={d ? d.tokens.toFixed(1) : '–'}
-        sub={d ? `of ${d.bucket_capacity} · ${d.rate_limited} blocked (429)` : 'waiting for data'}
+        sub={d ? `of ${d.bucket_capacity} · ${d.rate_limited} blocked (429) · ${d.chaos_injected} chaos` : 'waiting for data'}
       />
       <Card
         icon={<Timer className={icon} />}
