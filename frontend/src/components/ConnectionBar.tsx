@@ -9,12 +9,14 @@ interface Props {
 
 export default function ConnectionBar({ connected, target }: Props) {
   const [draft, setDraft] = useState<string | null>(null) // null = not editing
+  const [saved, setSaved] = useState<string | null>(null) // bridges the gap until the next telemetry frame
   const [error, setError] = useState<string | null>(null)
 
   const save = () => {
     if (draft === null) return
     patchConfig({ target_url: draft })
-      .then(() => {
+      .then((cfg) => {
+        setSaved(cfg.target_url ?? '')
         setDraft(null)
         setError(null)
       })
@@ -38,7 +40,7 @@ export default function ConnectionBar({ connected, target }: Props) {
             <label htmlFor="target" className="text-slate-400">Target</label>
             <input
               id="target"
-              value={draft ?? target ?? ''}
+              value={draft ?? saved ?? target ?? ''}
               placeholder="http://localhost:3000"
               onChange={(e) => setDraft(e.target.value)}
               className="w-64 rounded-md border border-slate-700 bg-slate-950 px-2 py-1 font-mono text-slate-200 focus:border-sky-500 focus:outline-none"
