@@ -1,5 +1,5 @@
 import { Check, Plug, Wifi, WifiOff } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { patchConfig } from '../api'
 
 interface Props {
@@ -11,6 +11,9 @@ export default function ConnectionBar({ connected, target }: Props) {
   const [draft, setDraft] = useState<string | null>(null) // null = not editing
   const [saved, setSaved] = useState<string | null>(null) // bridges the gap until the next telemetry frame
   const [error, setError] = useState<string | null>(null)
+
+  // Telemetry has caught up (or the target changed elsewhere): trust it again.
+  useEffect(() => setSaved(null), [target])
 
   const save = () => {
     if (draft === null) return
