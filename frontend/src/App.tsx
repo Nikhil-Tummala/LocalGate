@@ -1,5 +1,6 @@
 import ChaosPanel from './components/ChaosPanel'
 import ConnectionBar from './components/ConnectionBar'
+import RateLimitPanel from './components/RateLimitPanel'
 import MetricsGrid from './components/MetricsGrid'
 import ThroughputChart from './components/ThroughputChart'
 import { useTelemetry } from './hooks/useTelemetry'
@@ -14,7 +15,10 @@ export default function App() {
         <div className="lg:col-span-2">
           <ThroughputChart series={data?.series ?? []} />
         </div>
-        <ChaosPanel />
+        <div className="space-y-4">
+          <ChaosPanel />
+          <RateLimitPanel />
+        </div>
       </div>
     </main>
   )
