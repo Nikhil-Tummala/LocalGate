@@ -1,7 +1,7 @@
 import ChaosPanel from './components/ChaosPanel'
 import ConnectionBar from './components/ConnectionBar'
-import RateLimitPanel from './components/RateLimitPanel'
 import MetricsGrid from './components/MetricsGrid'
+import RateLimitPanel from './components/RateLimitPanel'
 import ThroughputChart from './components/ThroughputChart'
 import { useTelemetry } from './hooks/useTelemetry'
 

@@ -23,6 +23,13 @@ Or run both with `./dev.sh http://localhost:3000`.
 Point your client at `http://localhost:8000` instead of the real API. The target can also
 be set per request with an `X-Target-URL` header, or live from the dashboard.
 
+## Dashboard
+
+Connection bar (live status, editable target), KPI cards (RPS, cache hit ratio, bucket
+tokens, p95 latency), a 60 s cache-hit vs upstream chart, chaos sliders and toggles, a
+cache flush button and rate-limit capacity/refill inputs. Applying new rate limits resets
+every bucket to full.
+
 ## Request pipeline
 
 1. Parse request metadata (target, path, query, body)
