@@ -18,7 +18,8 @@ LOCALGATE_TARGET_URL=http://localhost:3000 .venv/bin/uvicorn app.main:app --port
 cd frontend && npm install && npm run dev      # http://127.0.0.1:5173
 ```
 
-Or run both with `./dev.sh http://localhost:3000`.
+Or run both with `./dev.sh http://localhost:3000`. It switches to Node 22 via nvm (`frontend/.nvmrc`)
+and uses ports 8000 (gateway) and 5173 (dashboard); override with `GATEWAY_PORT` / `DASHBOARD_PORT`.
 
 Point your client at `http://localhost:8000` instead of the real API. The target can also
 be set per request with an `X-Target-URL` header, or live from the dashboard.
