@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
     await state.client.aclose()
 
 
-app = FastAPI(title="LocalGate", lifespan=lifespan)
+app = FastAPI(title="LocalGate", version="0.1.0", lifespan=lifespan)
 # control routes (/api/*, /ws/*) must be included above this line: the proxy route matches every path
 app.include_router(control.router)
 app.include_router(telemetry.router)
